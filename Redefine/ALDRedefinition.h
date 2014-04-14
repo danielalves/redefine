@@ -22,7 +22,7 @@
  *  @param selector          The class method we want to redefine
  *  @param newImplementation The new implementation of selector
  *
- *  @return An ALDSubstitute object that can control the selector redefinition
+ *  @return An ALDRedefinition object that can control the selector redefinition
  */
 +( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withImplementation:(id(^)(id object, SEL selector, ...))newImplementation;
 
@@ -33,7 +33,7 @@
  *  @param selector          The instance method we want to redefine
  *  @param newImplementation The new implementation of selector
  *
- *  @return An ALDSubstitute object that can control the selector redefinition
+ *  @return An ALDRedefinition object that can control the selector redefinition
  */
 +( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withImplementation:(id(^)(id object, SEL selector, ...))newImplementation;
 
