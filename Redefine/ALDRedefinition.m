@@ -95,6 +95,12 @@
 -( void )dealloc
 {
     [self stopUsingRedefinition];
+    
+    if( redefinedImplementation )
+    {
+        imp_removeBlock( redefinedImplementation );
+        redefinedImplementation = nil;
+    }
 }
 
 #pragma mark - Redefinition Management
