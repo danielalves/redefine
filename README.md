@@ -5,6 +5,13 @@ Redefine makes easier to overwrite methods implementations during runtime using 
 
 The obvious use for it is unit tests. You don't have to prepare your code specifically for tests using factories, interfaces and etc, since it's possible to redefine any class or instance method. But, of course, you can do a lot of other crazy stuffs if you want to =D
 
+Installation via CocoaPods
+--------------------------
+
+```ruby
+pod "Redefine", "~> 1.0"
+```
+
 Examples
 --------
 
@@ -130,6 +137,13 @@ ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArra
 // Checks if a redefinition is in place
 BOOL isRedefinitionInPlace = redefinition.usingRedefinition
 ```
+
+Collaborators
+--------------
+
+- [Daniel L. Alves](http://github.com/danielalves)
+- [Gustavo Barbosa](http://github.com/barbosa) ([@gustavocsb](https://twitter.com/gustavocsb))
+- [Flavia Missi](http://github.com/flaviamissi) ([@flaviamissi](https://twitter.com/flaviamissi))
 
 License
 -------
