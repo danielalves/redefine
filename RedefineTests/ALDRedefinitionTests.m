@@ -3,7 +3,7 @@
 //  Redefine
 //
 //  Created by Daniel Alves on 14/4/14.
-//  Copyright (c) 2014 redefine. All rights reserved.
+//  Copyright (c) 2014 Daniel L. Alves. All rights reserved.
 //
 
 #import <XCTest/XCTest.h>
