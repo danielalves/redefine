@@ -184,7 +184,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0510;
-				ORGANIZATIONNAME = redefine;
+				ORGANIZATIONNAME = "Daniel L. Alves";
 			};
 			buildConfigurationList = 12E5005C18FC48D800720F95 /* Build configuration list for PBXProject "Redefine" */;
 			compatibilityVersion = "Xcode 3.2";

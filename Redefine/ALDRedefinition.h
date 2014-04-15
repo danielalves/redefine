@@ -1,17 +1,22 @@
-//
-//  ALDRedefinition.h
-//  Redefine
-//
-//  Created by Daniel L. Alves on 14/4/14.
-//  Copyright (c) 2014 redefine. All rights reserved.
-//
+/**
+ *  @header ALDRedefinition.h
+ *  Declares Redefine's main class: ALDRedefinition
+ *
+ *  @author Created by Daniel L. Alves on 14/4/14.
+ *  @copyright Copyright (c) 2014 Daniel L. Alves. All rights reserved.
+ */
 
 #import <Foundation/Foundation.h>
 
+/**
+ *  Represents a runtime method redefinition of a class or instance method. It also makes possible to switch back and forth
+ *  through implementations, the original and the new one. It uses the C++ concept of RAII, so the user just have to make sure to mantain
+ *  a reference to the redefinition object for it to take place. When it is deallocated, everything goes back to normal.
+ */
 @interface ALDRedefinition : NSObject
 
 /**
- *  @property Returns if the redefinition is in place
+ *  Returns if the redefinition is in place
  */
 @property( nonatomic, readonly )BOOL usingRedefinition;
 
