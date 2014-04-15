@@ -128,3 +128,8 @@ ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArra
 // Checks if a redefinition is in place
 BOOL isRedefinitionInPlace = redefinition.usingRedefinition
 ```
+
+License
+-------
+
+Redefine is available under the MIT license. See the LICENSE file for more info.
