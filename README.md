@@ -18,10 +18,10 @@ Let's say you want to test a behavior for a given signed user, which is managed 
     [ALDRedefinition redefineClass: [UserManager class]
                           selector: @selector( currentUsername )
                 withImplementation: ^id(id object, SEL selector, ...) {
-                    return @"Jhon Doe";
+                    return @"John Doe";
                 }];
              
-    XCTAssertEqualObjects( [UserManager greetings], @"Hello, Jhon Doe!" )
+    XCTAssertEqualObjects( [UserManager greetings], @"Hello, John Doe!" )
 }
 
 // ...
@@ -36,7 +36,7 @@ Let's say you want to test a behavior for a given signed user, which is managed 
 @end
 ```
 
-You don't have to worry about setting the original implementation of ```currentUsername:``` back, since it will be done automatically when ```ALDRedefinition``` is deallocated.
+You don't have to worry about setting the original implementation of ```currentUsername``` back, since it will be done automatically when ```ALDRedefinition``` is deallocated.
 
 **2) Redefining an instance method**
 
@@ -58,15 +58,16 @@ Let's say you want to test a specific behavior that only happens when a value is
 
 As said before, you don't have to worry about setting the original implementation of ```objectForKey:``` back, since it will be done automatically when ```ALDRedefinition``` is deallocated.
 
-The reason ```redefineClassInstances:selector:withImplementation:``` is plural is because all instances of ```NSUserDefaults``` class will have its ```objectForKey:``` redefined while the redefinition is alive.
+The reason ```redefineClassInstances:selector:withImplementation:``` is plural is because all instances of ```NSUserDefaults``` class will have its ```objectForKey:``` redefined while the redefinition is in place.
 
 **3) Beware of [class clusters](https://developer.apple.com/library/ios/documentation/general/conceptual/CocoaEncyclopedia/ClassClusters/ClassClusters.html "Class Cluster") like NSArray:**
 
-The code below will not work because NSArray is a class cluster, so it returns other classes which override ```objectForIndex:``` method:
+The code below will not work because ```NSArray``` is a class cluster, so it returns other classes which override ```objectForIndex:``` method:
 
 ```objc
 -( void )test_backward
 {
+    // testArray is not really a NSArray
     NSArray *testArray = @[ @1, @2, @3 ];
 
     // ERROR! THIS WILL NOT WORK AS EXPECTED!!!
@@ -86,6 +87,7 @@ For it to work, we would need to use ```testArray``` real class. So, the correct
 ```objc
 -( void )test_backward
 {
+    // testArray is not really a NSArray
     NSArray *testArray = @[ @1, @2, @3 ];
 
     // Ah-ha! Now everything is fine =)
