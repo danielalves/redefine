@@ -5,7 +5,7 @@ Redefine makes easier to overwrite methods implementations during runtime using 
 
 The obvious use for it is unit tests. You don't have to prepare your code specifically for tests using factories, interfaces and etc, since it's possible to redefine any class or instance method. But, of course, you can do a lot of crazy stuffs if you want to =D
 
-examples
+Examples
 --------
 
 **1) Redefining a class method**
