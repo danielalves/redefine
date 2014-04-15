@@ -141,7 +141,7 @@ BOOL isRedefinitionInPlace = redefinition.usingRedefinition
 Collaborators
 --------------
 
-- [Daniel L. Alves](http://github.com/danielalves)
+- [Daniel L. Alves](http://github.com/danielalves) ([@alveslopesdan](https://twitter.com/alveslopesdan))
 - [Gustavo Barbosa](http://github.com/barbosa) ([@gustavocsb](https://twitter.com/gustavocsb))
 - [Flavia Missi](http://github.com/flaviamissi) ([@flaviamissi](https://twitter.com/flaviamissi))
 
