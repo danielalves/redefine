@@ -11,6 +11,9 @@
 // Redefine
 #import "ALDRedefinition.h"
 
+// objc
+#import <objc/runtime.h>
+
 #pragma mark - Class Declaration
 
 @interface ALDRedefinitionTests : XCTestCase
@@ -64,6 +67,44 @@
     XCTAssertNotEqualObjects( [NSString pathWithComponents: components], @"something/different/from_above.txt" );
     
     XCTAssertEqualObjects( [NSString pathWithComponents: components], mockedResult );
+}
+
+-( void )test_redefineClass_Multiple_Redefinitions_With_Same_Target_Keep_Consistency_Between_All_Redefinitions
+{
+    NSString *originalValue = @"original value";
+    
+    ALDRedefinition *firstRedefinition = [ALDRedefinition redefineClass: [NSString class]
+                                                               selector: @selector( stringWithString: )
+                                                     withImplementation:^id(id object, SEL selector, ...) {
+                                                         return @"first";
+                                                     }];
+    
+    NSString *temp = [NSString stringWithString: originalValue];
+    XCTAssertEqualObjects( temp, @"first" );
+    
+    ALDRedefinition *secondRedefinition = [ALDRedefinition redefineClass: [NSString class]
+                                                                selector: @selector( stringWithString: )
+                                                      withImplementation:^id(id object, SEL selector, ...) {
+                                                          return @"second";
+                                                      }];
+    
+    temp = [NSString stringWithString: originalValue];
+    XCTAssertEqualObjects( temp, @"second" );
+    XCTAssertFalse( firstRedefinition.usingRedefinition );
+    
+    [firstRedefinition startUsingRedefinition];
+    
+    temp = [NSString stringWithString: originalValue];
+    XCTAssertEqualObjects( temp, @"first" );
+    XCTAssertFalse( secondRedefinition.usingRedefinition );
+    
+    [firstRedefinition stopUsingRedefinition];
+    
+    temp = [NSString stringWithString: originalValue];
+    XCTAssertEqualObjects( temp, @"original value" );
+    
+    XCTAssertFalse( firstRedefinition.usingRedefinition );
+    XCTAssertFalse( secondRedefinition.usingRedefinition );
 }
 
 -( void )test_redefineClass_Throws_NSInvalidArgumentException_On_Nil_Class
@@ -215,6 +256,40 @@
     
     for( NSUInteger i = 0 ; i < testArray.count ; i++ )
         XCTAssertEqualObjects( @"Mock", [testArray objectAtIndex: i] );
+}
+
+-( void )test_redefineClassInstances_Multiple_Redefinitions_With_Same_Target_Keep_Consistency_Between_All_Redefinitions
+{
+    NSString *test = @"original value";
+    
+    ALDRedefinition *firstRedefinition = [ALDRedefinition redefineClassInstances: [NSString class]
+                                                                        selector: @selector( description )
+                                                              withImplementation:^id(id object, SEL selector, ...) {
+                                                                  return @"first";
+                                                              }];
+    
+    XCTAssertEqualObjects( [test description], @"first" );
+    
+    ALDRedefinition *secondRedefinition = [ALDRedefinition redefineClassInstances: [NSString class]
+                                                                         selector: @selector( description )
+                                                               withImplementation:^id(id object, SEL selector, ...) {
+                                                                   return @"second";
+                                                               }];
+    
+    XCTAssertEqualObjects( [test description], @"second" );
+    XCTAssertFalse( firstRedefinition.usingRedefinition );
+    
+    [firstRedefinition startUsingRedefinition];
+    
+    XCTAssertEqualObjects( [test description], @"first" );
+    XCTAssertFalse( secondRedefinition.usingRedefinition );
+    
+    [firstRedefinition stopUsingRedefinition];
+    
+    XCTAssertEqualObjects( [test description], @"original value" );
+    
+    XCTAssertFalse( firstRedefinition.usingRedefinition );
+    XCTAssertFalse( secondRedefinition.usingRedefinition );
 }
 
 -( void )test_redefineClassInstances_Throws_NSInvalidArgumentException_On_Nil_Class
