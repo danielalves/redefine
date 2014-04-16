@@ -15,7 +15,7 @@ Installation via CocoaPods
 --------------------------
 
 ```ruby
-pod "Redefine", "~> 1.0"
+pod "Redefine"
 ```
 
 Examples
