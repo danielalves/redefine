@@ -14,6 +14,15 @@
 // objc
 #import <objc/runtime.h>
 
+#pragma mark - Conts
+
+static NSString * const kUsingRedefinitionPropertyKeyPath = @"usingRedefinition";
+
+#pragma mark - Globals
+
+static NSUInteger kvoCounter = 0;
+static NSString *kvoContext = nil;
+
 #pragma mark - Class Declaration
 
 @interface ALDRedefinitionTests : XCTestCase
@@ -233,6 +242,39 @@
     XCTAssertTrue( redefinition.usingRedefinition );
 }
 
+-( void )test_redefineClass_Supports_KVO_On_usingRedefinition_Property
+{
+    ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSBundle class]
+                                                          selector: @selector( mainBundle )
+                                                withImplementation:^id(id object, SEL selector, ...) {
+                                                    return mockedMainBundle;
+                                                }];
+    
+    kvoContext = [NSString stringWithUTF8String: __PRETTY_FUNCTION__];
+    
+    @try
+    {
+        [redefinition addObserver: self
+                       forKeyPath: kUsingRedefinitionPropertyKeyPath
+                          options: NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew
+                          context: ( void * )kvoContext];
+        
+        kvoCounter = 0;
+        
+        [redefinition stopUsingRedefinition];
+        
+        XCTAssertEqual( kvoCounter, 1 );
+        
+        [redefinition startUsingRedefinition];
+        
+        XCTAssertEqual( kvoCounter, 2 );
+    }
+    @finally
+    {
+        [redefinition removeObserver: self forKeyPath: kUsingRedefinitionPropertyKeyPath context: ( void * )kvoContext];
+    }
+}
+
 #pragma mark - Class Instance Selector Redefinitions Tests
 
 -( void )test_Redefines_Zero_Arguments_Class_Instances_Methods
@@ -418,6 +460,50 @@
     [redefinition startUsingRedefinition];
     
     XCTAssertTrue( redefinition.usingRedefinition );
+}
+
+-( void )test_redefineClassInstances_Supports_KVO_On_usingRedefinition_Property
+{
+    ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
+                                                                   selector: @selector( firstObject )
+                                                         withImplementation:^id(id object, SEL selector, ...) {
+                                                             return testArray.lastObject;
+                                                         }];
+    
+    kvoContext = [NSString stringWithUTF8String: __PRETTY_FUNCTION__];
+
+    @try
+    {
+        [redefinition addObserver: self
+                       forKeyPath: kUsingRedefinitionPropertyKeyPath
+                          options: NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew
+                          context: ( void * )kvoContext];
+        
+        kvoCounter = 0;
+        
+        [redefinition stopUsingRedefinition];
+        
+        XCTAssertEqual( kvoCounter, 1 );
+        
+        [redefinition startUsingRedefinition];
+        
+        XCTAssertEqual( kvoCounter, 2 );
+    }
+    @finally
+    {
+        [redefinition removeObserver: self forKeyPath: kUsingRedefinitionPropertyKeyPath context: ( void * )kvoContext];
+    }
+}
+
+#pragma mark - Helpers
+
+-( void )observeValueForKeyPath:( NSString * )keyPath ofObject:( id )object change:( NSDictionary * )change context:( void * )context
+{
+    if( [keyPath isEqualToString: kUsingRedefinitionPropertyKeyPath]
+        && [(( __bridge NSString * )context) isEqualToString: kvoContext] )
+    {
+        ++kvoCounter;
+    }
 }
 
 @end

@@ -17,26 +17,18 @@
 {
     IMP redefinedImplementation;
     IMP originalImplementation;
-    
-    BOOL usingRedefinition;
 }
 
 @property( nonatomic, readonly )Class targetClass;
 @property( nonatomic, readonly )SEL targetSelector;
 @property( nonatomic, readonly )BOOL redefiningMetaClass;
+@property( nonatomic, readwrite )BOOL usingRedefinition;
 
 @end
 
 #pragma mark - ALDRedefinition Implementation
 
 @implementation ALDRedefinition
-
-#pragma mark - Accessors
-
--( BOOL )usingRedefinition
-{
-    return usingRedefinition;
-}
 
 #pragma mark - Ctors & Dtor
 
@@ -112,13 +104,13 @@
 {
     @synchronized( self.class )
     {
-        if( !usingRedefinition )
+        if( !_usingRedefinition )
         {
             [ALDRedefinition stopPreviousRedefinitionWithSameTargetAndRegisterRedefinition: self];
             
             originalImplementation = class_replaceMethod( _targetClass, _targetSelector, redefinedImplementation, NULL );
 
-            usingRedefinition = YES;
+            self.usingRedefinition = YES;
         }
     }
 }
@@ -127,10 +119,10 @@
 {
     @synchronized( self.class )
     {
-        if( usingRedefinition )
+        if( _usingRedefinition )
         {
             class_replaceMethod( _targetClass, _targetSelector, originalImplementation, NULL );
-            usingRedefinition = NO;
+            self.usingRedefinition = NO;
         }
     }
 }
