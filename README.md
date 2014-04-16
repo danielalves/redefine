@@ -1,15 +1,15 @@
 redefine
 ========
 
-Redefine makes easier to overwrite methods implementations during runtime using the objc runtime. It also makes possible to switch back and forth through implementations, the original and the new one. ALDRedefinition uses the C++ concept of [RAII](http://en.wikibooks.org/wiki/C%2B%2B_Programming/RAII "RAII"), so the user just have to make sure to mantain a reference to the redefinition object for it to take place. When it is deallocated, everything goes back to normal.
+Redefine makes easier to overwrite methods implementations during runtime using the objc runtime. It also makes possible to switch back and forth through implementations, the original and the new one. ```ALDRedefinition``` uses the C++ concept of [RAII](http://en.wikibooks.org/wiki/C%2B%2B_Programming/RAII "RAII"), so the user just have to make sure to mantain a reference to the redefinition object for it to take place. When it is deallocated, everything goes back to normal.
 
 The obvious use for it is unit tests. You don't have to prepare your code specifically for tests using factories, interfaces and etc, since it's possible to redefine any class or instance method. But, of course, you can do a lot of other crazy stuffs if you want to =D
 
 **What is new in version 1.0.2**
 
-Setting a redefinition in place stops a previous redefition of the same target. Hence, it it possible to create multiple redefinitions of the same class/instance selector and use them at will. The property usingRedefinition has become KVO compliant, so it is possible to listen to these changes.
+Setting a redefinition in place stops a previous redefition of the same target. Hence, it it possible to create multiple redefinitions of the same class/instance selector and use them at will. The property ```usingRedefinition``` has become KVO compliant, so it is possible to listen to these changes.
 
-Starting and stoping to use a redefinition are now atomic operations, what makes ALDRedefinition thread safe.
+Starting and stoping to use a redefinition are now atomic operations, what makes ```ALDRedefinition``` thread safe.
 
 Installation via CocoaPods
 --------------------------
@@ -146,7 +146,7 @@ BOOL isRedefinitionInPlace = redefinition.usingRedefinition
 
 **5) Multiple redefinitions with the same target**
 
-Since version 1.0.2, you can set multiple redefinitions for the same target. The previous redefinition will be stopped. If you want listen to theses changes, the usingRedefinition property is now KVO compliant:
+Since version 1.0.2, you can set multiple redefinitions for the same target. The previous redefinition will be stopped. If you want listen to theses changes, the ```usingRedefinition``` property is now KVO compliant:
 
 ```objc
 NSString *test = @"original value";
