@@ -40,7 +40,7 @@
     XCTAssertNotEqual( originalMainBundle, mockedMainBundle );
 }
 
-#pragma mark - Class Selector Redefinitions
+#pragma mark - Class Selector Redefinitions Tests
 
 -( void )test_Redefines_Zero_Argument_Class_Methods
 {
@@ -233,7 +233,7 @@
     XCTAssertTrue( redefinition.usingRedefinition );
 }
 
-#pragma mark - Class Instance Selector Redefinitions
+#pragma mark - Class Instance Selector Redefinitions Tests
 
 -( void )test_Redefines_Zero_Arguments_Class_Instances_Methods
 {
