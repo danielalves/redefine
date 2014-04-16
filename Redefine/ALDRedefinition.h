@@ -20,7 +20,7 @@
  *  redefinitions of the same class/instance selector and use them at will. The property usingRedefinition has become KVO
  *  compliant, so it is possible to listen to these changes.
  *
- *  Starting and stoping to use a redefinition are atomic operations, what makes ALDRedefinition thread safe.
+ *  Starting and stoping to use a redefinition are synchronized operations, what makes ALDRedefinition thread safe.
  */
 @interface ALDRedefinition : NSObject
 
@@ -70,7 +70,7 @@
  *  Sets the redefinition represented by this object in place. That is, replaces the original implementation of the selector by the 
  *  new implementation.
  *
- *  Since version 1.0.2, this method is atomic and stops a previous redefinition on the same target.
+ *  Since version 1.0.2, this method is synchronized and stops a previous redefinition on the same target.
  *
  *  @see stopUsingRedefinition
  *  @see usingRedefinition
@@ -80,7 +80,7 @@
 /**
  *  Stops the redefinition represented by this object. That is, takes the original selector implementation back.
  *
- *  Since version 1.0.2, this method is atomic.
+ *  Since version 1.0.2, this method is synchronized.
  *
  *  @see startUsingRedefinition
  *  @see usingRedefinition
