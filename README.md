@@ -9,7 +9,7 @@ The obvious use for it is unit tests. You don't have to prepare your code specif
 
 Setting a redefinition in place stops a previous redefition of the same target. Hence, it it possible to create multiple redefinitions of the same class/instance selector and use them at will. The property ```usingRedefinition``` has become KVO compliant, so it is possible to listen to these changes.
 
-Starting and stoping to use a redefinition are now atomic operations, what makes ```ALDRedefinition``` thread safe.
+Starting and stoping to use a redefinition are now synchronized operations, what makes ```ALDRedefinition``` thread safe.
 
 Installation via CocoaPods
 --------------------------
