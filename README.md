@@ -36,7 +36,7 @@ Let's say you want to test a behavior for a given signed user, which is managed 
 {
     [ALDRedefinition redefineClass: [UserManager class]
                           selector: @selector( currentUsername )
-                withImplementation: ^id(id object, SEL selector, ...) {
+                withImplementation: ^id(id object, ...) {
                     return @"John Doe";
                 }];
              
@@ -66,7 +66,7 @@ Let's say you want to test a specific behavior that only happens when a value is
 {
     [ALDRedefinition redefineClassInstances: [NSUserDefaults class]
                                    selector: @selector( objectForKey: )
-                         withImplementation: ^id(id object, SEL selector, ...) {
+                         withImplementation: ^id(id object, ...) {
                              return @"Value";
                          }];
     
@@ -92,7 +92,7 @@ The code below will not work because ```NSArray``` is a class cluster, so it ret
     // ERROR! THIS WILL NOT WORK AS EXPECTED!!!
     [ALDRedefinition redefineClassInstances: [NSArray class]
                                    selector: @selector( objectAtIndex: )
-                         withImplementation:^id(id object, SEL selector, ...) {
+                         withImplementation:^id(id object, ...) {
                              return @"Mock";
                          }];
     
@@ -112,7 +112,7 @@ For it to work, we would need to use ```testArray``` real class. So, the correct
     // Ah-ha! Now everything is fine =)
     [ALDRedefinition redefineClassInstances: [testArray class]
                                    selector: @selector( objectAtIndex: )
-                         withImplementation:^id(id object, SEL selector, ...) {
+                         withImplementation:^id(id object, ...) {
                              return @"Mock";
                          }];
     
@@ -128,7 +128,7 @@ Of course you don't need to deallocate a redefinition object to make it uneffect
 ```objc
 ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                selector: @selector( firstObject )
-                                                     withImplementation:^id(id object, SEL selector, ...) {
+                                                     withImplementation:^id(id object, ...) {
                                                          return testArray.lastObject;
                                                      }];
                                                      
@@ -160,7 +160,7 @@ NSString *test = @"original value";
 // Creates a redefinition for NSString description
 ALDRedefinition *firstRedefinition = [ALDRedefinition redefineClassInstances: [NSString class]
                                                                     selector: @selector( description )
-                                                          withImplementation:^id(id object, SEL selector, ...) {
+                                                          withImplementation:^id(id object, ...) {
                                                               return @"first";
                                                           }];
 
@@ -170,7 +170,7 @@ assert( [[test description] isEqualToString: @"first"] );
 // Creates another redefinition for NSString description
 ALDRedefinition *secondRedefinition = [ALDRedefinition redefineClassInstances: [NSString class]
                                                                      selector: @selector( description )
-                                                           withImplementation:^id(id object, SEL selector, ...) {
+                                                           withImplementation:^id(id object, ...) {
                                                                return @"second";
                                                            }];
 
