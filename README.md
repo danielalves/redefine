@@ -17,8 +17,10 @@ Setting a redefinition in place stops a previous redefition of the same target. 
 
 Starting and stoping to use a redefinition are now synchronized operations, what makes ```ALDRedefinition``` thread safe.
 
-Installation via CocoaPods
---------------------------
+Installation
+------------
+
+Redefine is available through [CocoaPods](http://cocoapods.org), to install it simply add the following line to your Podfile:
 
 ```ruby
 pod "Redefine"
