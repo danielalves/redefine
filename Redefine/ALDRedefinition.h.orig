@@ -40,7 +40,11 @@
  *  @param aClass                 The class whose method we want to redefine
  *  @param selector               The class method we want to redefine
  *  @param newImplementationBlock The new implementation of selector. Its signature should be:
- *                                method_return_type ^(id self, ...)
+<<<<<<< Updated upstream
+ *                                method_return_type ^(id self, method_args...)
+=======
+ *                                method_return_type ^(id self, ...).
+>>>>>>> Stashed changes
  *
  *  @return An ALDRedefinition object that can control the selector redefinition
  *
@@ -55,13 +59,20 @@
 /**
  *  Creates an instance method redefinition for all instances of a class and calls startUsingRedefinition to set it in place.
  *
+<<<<<<< Updated upstream
+ *  @param aClass                 The class whose instance method we want to redefine
+ *  @param selector               The instance method we want to redefine
+ *  @param newImplementationBlock The new implementation of selector. Its signature should be:
+ *                                method_return_type ^(id self, method_args...)
+=======
  *  This method differs from redefineSingleInstance:selector:withImplementation: in that it redefines the instance
  *  method for all instances of the class, instead of just a single instance
  *
  *  @param aClass                 The class whose instance method we want to redefine
  *  @param selector               The instance method we want to redefine
  *  @param newImplementationBlock The new implementation of selector. Its signature should be:
- *                                method_return_type ^(id self, ...)
+ *                                method_return_type ^(id self, ...).
+>>>>>>> Stashed changes
  *
  *  @return An ALDRedefinition object that can control the selector redefinition
  *
@@ -82,7 +93,7 @@
  *  @param aClass                 The class whose instance method we want to redefine
  *  @param selector               The instance method we want to redefine
  *  @param newImplementationBlock The new implementation of selector. Its signature should be:
- *                                method_return_type ^(id self, ...)
+ *                                method_return_type ^(id self, ...).
  *
  *  @return An ALDRedefinition object that can control the selector redefinition
  *
@@ -94,7 +105,11 @@
  *
  *  @since 1.1.0
  */
+<<<<<<< Updated upstream
++( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock;
+=======
 +( instancetype )redefineSingleInstance:( NSObject * )instance selector:( SEL )selector withImplementation:( id )newImplementationBlock;
+>>>>>>> Stashed changes
 
 /**
  *  Sets the redefinition represented by this object in place. That is, replaces the original implementation of the selector by the 

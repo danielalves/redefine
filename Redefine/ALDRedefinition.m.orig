@@ -76,15 +76,26 @@ typedef NS_ENUM( uint8_t, SelectorType )
 +( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock
 {
     return [[ALDRedefinition alloc] initWithClass: aClass
+<<<<<<< Updated upstream
+                                       selector: selector
+                              newImplementation: newImplementationBlock
+                                isClassSelector: YES];
+=======
                                          selector: selector
                                            ofType: CLASS_SELECTOR
                                          instance: nil
                                 newImplementation: newImplementationBlock];
+>>>>>>> Stashed changes
 }
 
 +( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock
 {
     return [[ALDRedefinition alloc] initWithClass: aClass
+<<<<<<< Updated upstream
+                                       selector: selector
+                              newImplementation: newImplementationBlock
+                                isClassSelector: NO];
+=======
                                          selector: selector
                                            ofType: CLASS_INSTANCES_SELECTOR
                                          instance: nil
@@ -98,15 +109,23 @@ typedef NS_ENUM( uint8_t, SelectorType )
                                            ofType: SINGLE_INSTANCE_SELECTOR
                                          instance: instance
                                 newImplementation: newImplementationBlock];
+>>>>>>> Stashed changes
 }
 
 -( instancetype )initWithClass:( Class )aClass
                       selector:( SEL )selector
+<<<<<<< Updated upstream
+             newImplementation:( id )newImplementationBlock
+               isClassSelector:( BOOL )isClassSelector
+{
+    if( !aClass || !selector || !newImplementationBlock )
+=======
                         ofType:( SelectorType )selectorType
                       instance:( NSObject * )instance
              newImplementation:( id )newImplementationBlock
 {
     if( !aClass || !selector || !newImplementationBlock || ( !instance && selectorType == SINGLE_INSTANCE_SELECTOR ))
+>>>>>>> Stashed changes
         [NSException raise: NSInvalidArgumentException
                     format: @"All parameters must not be nil"];
     
@@ -119,7 +138,11 @@ typedef NS_ENUM( uint8_t, SelectorType )
         
         if( selectorType == CLASS_SELECTOR )
         {
+<<<<<<< Updated upstream
+            _targetClass = objc_getMetaClass( class_getName( aClass ));
+=======
             _targetClass = objc_getMetaClass(class_getName( aClass ));
+>>>>>>> Stashed changes
             
             if( !class_getClassMethod( _targetClass, selector ))
                 [NSException raise: NSInvalidArgumentException
@@ -129,6 +152,9 @@ typedef NS_ENUM( uint8_t, SelectorType )
         {
             if( !class_getInstanceMethod( aClass, selector ))
                 [NSException raise: NSInvalidArgumentException
+<<<<<<< Updated upstream
+                            format: @"%s instances do not respond to %s", class_getName( _targetClass ), sel_getName( selector )];
+=======
                             format: @"%s instances do not respond to %s", class_getName( aClass ), sel_getName( selector )];
 
             if( _targetSelectorType == SINGLE_INSTANCE_SELECTOR )
@@ -144,6 +170,7 @@ typedef NS_ENUM( uint8_t, SelectorType )
             {
                 _targetClass = aClass;
             }
+>>>>>>> Stashed changes
         }
         
         redefinedImplementation = imp_implementationWithBlock( newImplementationBlock );

@@ -27,7 +27,8 @@ static NSString *kvoContext = nil;
 
 @interface ALDRedefinitionTests : XCTestCase
 {
-    NSArray *testArray;
+    // NSMutableArray, so -copy returns a new instance
+    NSMutableArray *testArray;
     NSBundle *originalMainBundle;
     NSBundle *mockedMainBundle;
 }
@@ -41,7 +42,14 @@ static NSString *kvoContext = nil;
 
 -( void )setUp
 {
-    testArray = @[ @1, @2, @3 ];
+    testArray = [NSMutableArray arrayWithArray: @[ @1, @2, @3 ]];
+    
+    // TODO : Exchange copy for mutableCopy!!!!!!
+    NSArray* t = [testArray mutableCopy];
+    NSArray* t2 = [t mutableCopy];
+    NSArray* t3 = [t copy];
+    
+
     XCTAssertNotEqual( testArray.firstObject, testArray.lastObject );
     
     originalMainBundle = [NSBundle mainBundle];
@@ -493,6 +501,161 @@ static NSString *kvoContext = nil;
     {
         [redefinition removeObserver: self forKeyPath: kUsingRedefinitionPropertyKeyPath context: ( void * )kvoContext];
     }
+}
+
+#pragma mark - Single Instance Selector Redefinitions Tests
+
+-( void )test_Redefines_Single_Instance_Methods
+{
+    NSArray *one = @[ @1, @2, @3 ];
+    NSArray *two = @[ @4, @5, @6 ];
+    
+    ALDRedefinition *redefinition = [ALDRedefinition redefineSingleInstance: one
+                                                                   selector: @selector( objectAtIndex: )
+                                                         withImplementation:^id(id object, SEL selector, ...) {
+                                                             return @"test";
+                                                         }];
+    
+    XCTAssertEqualObjects( one[0], @"test" );
+    XCTAssertEqualObjects( two[0], @4 );
+    
+    [redefinition stopUsingRedefinition];
+    
+    XCTAssertEqualObjects( one[0], @1 );
+    XCTAssertEqualObjects( two[0], @4 );
+}
+
+-( void )test_Supports_More_Than_One_Redefinition_For_The_Same_Instance
+{
+    ALDRedefinition *firstRedefinition = [ALDRedefinition redefineSingleInstance: testArray
+                                                                        selector: @selector( objectAtIndex: )
+                                                              withImplementation:^id(id object, SEL selector, ...) {
+                                                                  return @"first";
+                                                              }];
+    
+    ALDRedefinition *secondRedefinition = [ALDRedefinition redefineSingleInstance: testArray
+                                                                         selector: @selector( count )
+                                                               withImplementation:^id(id object, SEL selector, ...) {
+                                                                   return 0;
+                                                               }];
+    
+    XCTAssertEqualObjects( testArray[0], @"first" );
+    XCTAssertEqual( testArray.count, 0 );
+    
+    [firstRedefinition stopUsingRedefinition];
+    
+    XCTAssertEqualObjects( testArray[0], @1 );
+    XCTAssertEqual( testArray.count, 0 );
+    
+    [secondRedefinition stopUsingRedefinition];
+    
+    XCTAssertEqualObjects( testArray[0], @1 );
+    XCTAssertEqual( testArray.count, 3 );
+    
+    [firstRedefinition startUsingRedefinition];
+    
+    XCTAssertEqualObjects( testArray[0], @"first" );
+    XCTAssertEqual( testArray.count, 3 );
+}
+
+-( void )test_First_Single_Instance_Redefinition_Generates_New_Compatible_Class
+{
+    Class classBeforeRedefinition = testArray.class;
+    
+    [ALDRedefinition redefineSingleInstance: testArray
+                                   selector: @selector( objectAtIndex: )
+                         withImplementation:^id(id object, SEL selector, ...) {
+                             return @"first";
+                         }];
+    
+    XCTAssertTrue( [testArray isKindOfClass: classBeforeRedefinition] );
+}
+
+-( void )test_More_Than_One_Redefinition_For_The_Same_Instance_Do_Not_Generate_More_Than_One_Compatible_Class
+{
+    [ALDRedefinition redefineSingleInstance: testArray
+                                   selector: @selector( objectAtIndex: )
+                         withImplementation:^id(id object, SEL selector, ...) {
+                             return @"first";
+                         }];
+    
+    Class classAfterFirstRedefinition = testArray.class;
+    
+    [ALDRedefinition redefineSingleInstance: testArray
+                                   selector: @selector( count )
+                         withImplementation:^id(id object, SEL selector, ...) {
+                             return 0;
+                         }];
+    
+    Class classAfterSecondRedefinition = testArray.class;
+    
+    XCTAssertEqual( classAfterFirstRedefinition, classAfterSecondRedefinition );
+}
+
+-( void )test_Redefined_Instance_Copy_Is_Also_Redefined_And_Controlled_By_The_Same_Redefinition
+{
+    ALDRedefinition *redefinition = [ALDRedefinition redefineSingleInstance: testArray
+                                                                   selector: @selector( objectAtIndex: )
+                                                         withImplementation:^id(id object, SEL selector, ...) {
+                                                             return @"first";
+                                                         }];
+    
+    NSArray *copy = [testArray copy];
+    
+    XCTAssertEqualObjects( copy[0], @"first" );
+    
+    [redefinition stopUsingRedefinition];
+    
+    XCTAssertEqualObjects( testArray[0], @1 );
+    XCTAssertEqualObjects( copy[0], @1 );
+}
+
+-( void )test_Redefined_Single_Instance_Copy_Keeps_Redefinition_Auto_Generated_Class
+{
+    [ALDRedefinition redefineSingleInstance: testArray
+                                   selector: @selector( objectAtIndex: )
+                         withImplementation:^id(id object, SEL selector, ...) {
+                             return @"first";
+                         }];
+    
+    NSArray *copy = [testArray copy];
+    
+    XCTAssertEqual( copy.class, testArray.class );
+}
+
+-( void )test_Single_Instance_Redefinitions_On_Copies_Generate_New_Classes_And_Keeps_Working
+{
+    [ALDRedefinition redefineSingleInstance: testArray
+                                   selector: @selector( objectAtIndex: )
+                         withImplementation:^id(id object, SEL selector, ...) {
+                             return @"first";
+                         }];
+    
+    NSArray *copy = [testArray copy];
+    Class copyInitialClass = copy.class;
+    
+    [ALDRedefinition redefineSingleInstance: copy
+                                   selector: @selector( objectAtIndex: )
+                         withImplementation:^id(id object, SEL selector, ...) {
+                             return @"copy first";
+                         }];
+    
+    Class copyClassAfterFirstRedefinition = copy.class;
+    
+    XCTAssertNotEqual( copyInitialClass, copyClassAfterFirstRedefinition );
+    XCTAssertEqualObjects( copy[0], @"copy first" );
+    
+    [ALDRedefinition redefineSingleInstance: copy
+                                   selector: @selector( objectAtIndex: )
+                         withImplementation:^id(id object, SEL selector, ...) {
+                             return @"copy second";
+                         }];
+    
+    Class copyClassSecondFirstRedefinition = copy.class;
+    
+    XCTAssertNotEqual( copyClassAfterFirstRedefinition, copyClassSecondFirstRedefinition );
+    XCTAssertNotEqual( copyInitialClass, copyClassSecondFirstRedefinition );
+    XCTAssertEqualObjects( copy[0], @"copy second" );
 }
 
 #pragma mark - Helpers
