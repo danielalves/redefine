@@ -37,9 +37,10 @@
 /**
  *  Creates a redefinition for a class method and calls startUsingRedefinition.
  *
- *  @param aClass            The class whose method we want to redefine
- *  @param selector          The class method we want to redefine
- *  @param newImplementation The new implementation of selector
+ *  @param aClass                 The class whose method we want to redefine
+ *  @param selector               The class method we want to redefine
+ *  @param newImplementationBlock The new implementation of selector. Its signature should be:
+ *                                method_return_type ^(id self, method_args...)
  *
  *  @return An ALDRedefinition object that can control the selector redefinition
  *
@@ -48,14 +49,15 @@
  *  @see startUsingRedefinition
  *  @see redefineClassInstances:selector:withImplementation:
  */
-+( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withImplementation:(id(^)(id object, SEL selector, ...))newImplementation;
++( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock;
 
 /**
  *  Creates a redefinition for an instance method of a class and calls startUsingRedefinition.
  *
- *  @param aClass            The class whose instance method we want to redefine
- *  @param selector          The instance method we want to redefine
- *  @param newImplementation The new implementation of selector
+ *  @param aClass                 The class whose instance method we want to redefine
+ *  @param selector               The instance method we want to redefine
+ *  @param newImplementationBlock The new implementation of selector. Its signature should be:
+ *                                method_return_type ^(id self, method_args...)
  *
  *  @return An ALDRedefinition object that can control the selector redefinition
  *
@@ -64,7 +66,7 @@
  *  @see startUsingRedefinition
  *  @see redefineClass:selector:withImplementation:
  */
-+( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withImplementation:(id(^)(id object, SEL selector, ...))newImplementation;
++( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock;
 
 /**
  *  Sets the redefinition represented by this object in place. That is, replaces the original implementation of the selector by the 

@@ -32,28 +32,28 @@
 
 #pragma mark - Ctors & Dtor
 
-+( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withImplementation:(id(^)(id object, SEL selector, ...))newImplementation
++( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock
 {
     return [[ALDRedefinition alloc] initWithClass: aClass
                                        selector: selector
-                              newImplementation: newImplementation
+                              newImplementation: newImplementationBlock
                                 isClassSelector: YES];
 }
 
-+( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withImplementation:(id(^)(id object, SEL selector, ...))newImplementation
++( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock
 {
     return [[ALDRedefinition alloc] initWithClass: aClass
                                        selector: selector
-                              newImplementation: newImplementation
+                              newImplementation: newImplementationBlock
                                 isClassSelector: NO];
 }
 
 -( instancetype )initWithClass:( Class )aClass
                       selector:( SEL )selector
-             newImplementation:( id(^)(id object, SEL selector, ...) )newImplementation
+             newImplementation:( id )newImplementationBlock
                isClassSelector:( BOOL )isClassSelector
 {
-    if( !aClass || !selector || !newImplementation )
+    if( !aClass || !selector || !newImplementationBlock )
         [NSException raise: NSInvalidArgumentException
                     format: @"All parameters must not be nil"];
     
@@ -65,11 +65,11 @@
         
         if( isClassSelector )
         {
-            _targetClass = objc_getMetaClass(class_getName(aClass));
+            _targetClass = objc_getMetaClass( class_getName( aClass ));
             
             if( !class_getClassMethod( _targetClass, selector ))
                 [NSException raise: NSInvalidArgumentException
-                            format: @"%s does not respond to %s", class_getName(_targetClass), sel_getName(selector)];
+                            format: @"%s does not respond to %s", class_getName( _targetClass ), sel_getName( selector )];
         }
         else
         {
@@ -77,10 +77,10 @@
             
             if( !class_getInstanceMethod( _targetClass, selector ))
                 [NSException raise: NSInvalidArgumentException
-                            format: @"%s instances do not respond to %s", class_getName(_targetClass), sel_getName(selector)];
+                            format: @"%s instances do not respond to %s", class_getName( _targetClass ), sel_getName( selector )];
         }
         
-        redefinedImplementation = imp_implementationWithBlock(newImplementation);
+        redefinedImplementation = imp_implementationWithBlock( newImplementationBlock );
         
         [self startUsingRedefinition];
     }
