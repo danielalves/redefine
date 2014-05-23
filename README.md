@@ -7,6 +7,10 @@ Redefine makes easier to overwrite methods implementations during runtime using 
 
 The obvious use for it is unit tests. You don't have to prepare your code specifically for tests using factories, interfaces and etc, since it's possible to redefine any class or instance method. But, of course, you can do a lot of other crazy stuffs if you want to =D
 
+**What is new in version 1.0.3**
+
+Fixed new implementation blocks signatures: because of an Apple documentation issue, we were using the wrong block signature for implementation redefinitions. Now you can use blocks with any signature, so you can redefine any type of methods, not only those returning pointers =)
+
 **What is new in version 1.0.2**
 
 Setting a redefinition in place stops a previous redefition of the same target. Hence, it it possible to create multiple redefinitions of the same class/instance selector and use them at will. The property ```usingRedefinition``` has become KVO compliant, so it is possible to listen to these changes.
