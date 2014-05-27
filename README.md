@@ -4,7 +4,7 @@ redefine
 [![Cocoapods](https://cocoapod-badges.herokuapp.com/v/Redefine/badge.png)](http://cocoapods.org/?q=redefine)
 [![Platform](http://cocoapod-badges.herokuapp.com/p/Redefine/badge.png)](http://cocoadocs.org/docsets/Redefine)
 
-Redefine makes easier to overwrite methods implementations during runtime using the objc runtime. It also makes possible to switch back and forth through implementations, the original and the new one. ```ALDRedefinition``` uses the C++ concept of [RAII](http://en.wikibooks.org/wiki/C%2B%2B_Programming/RAII "RAII"), so the user just have to make sure to mantain a reference to the redefinition object for it to take place. When it is deallocated, everything goes back to normal.
+**Redefine** makes easier to overwrite methods implementations during runtime using the objc runtime. It also makes possible to switch back and forth through implementations, the original and the new one. ```ALDRedefinition``` uses the C++ concept of [RAII](http://en.wikibooks.org/wiki/C%2B%2B_Programming/RAII "RAII"), so the user just have to make sure to mantain a reference to the redefinition object for it to take place. When it is deallocated, everything goes back to normal.
 
 The obvious use for it is unit tests. You don't have to prepare your code specifically for tests using factories, interfaces and etc, since it's possible to redefine any class or instance method. But, of course, you can do a lot of other crazy stuffs if you want to =D
 
@@ -21,7 +21,7 @@ Starting and stoping to use a redefinition are now synchronized operations, what
 Installation
 ------------
 
-Redefine is available through [CocoaPods](http://cocoapods.org), to install it simply add the following line to your Podfile:
+**Redefine** is available through [CocoaPods](http://cocoapods.org), to install it simply add the following line to your Podfile:
 
 ```ruby
 pod "Redefine"
@@ -214,4 +214,4 @@ Collaborators
 License
 -------
 
-Redefine is available under the MIT license. See the LICENSE file for more info.
+**Redefine** is available under the MIT license. See the LICENSE file for more info.
