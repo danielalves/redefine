@@ -1,4 +1,6 @@
 language: objective-c
-xcode_project: Redefine.xcodeproj
-xcode_scheme: Redefine
-xcode_sdk: iphonesimulator7.1
+before_script:
+    - brew update
+    - brew upgrade xctool
+script:
+    - xctool -project Redefine.xcodeproj -sdk iphonesimulator -scheme Redefine test
