@@ -2,10 +2,15 @@ redefine
 ========
 
 [![Cocoapods](https://cocoapod-badges.herokuapp.com/v/Redefine/badge.png)](http://cocoapods.org/?q=redefine)
+[![Platform](http://cocoapod-badges.herokuapp.com/p/Redefine/badge.png)](http://cocoadocs.org/docsets/Redefine)
 
-Redefine makes easier to overwrite methods implementations during runtime using the objc runtime. It also makes possible to switch back and forth through implementations, the original and the new one. ```ALDRedefinition``` uses the C++ concept of [RAII](http://en.wikibooks.org/wiki/C%2B%2B_Programming/RAII "RAII"), so the user just have to make sure to mantain a reference to the redefinition object for it to take place. When it is deallocated, everything goes back to normal.
+**Redefine** makes easier to overwrite methods implementations during runtime using the objc runtime. It also makes possible to switch back and forth through implementations, the original and the new one. ```ALDRedefinition``` uses the C++ concept of [RAII](http://en.wikibooks.org/wiki/C%2B%2B_Programming/RAII "RAII"), so the user just have to make sure to mantain a reference to the redefinition object for it to take place. When it is deallocated, everything goes back to normal.
 
 The obvious use for it is unit tests. You don't have to prepare your code specifically for tests using factories, interfaces and etc, since it's possible to redefine any class or instance method. But, of course, you can do a lot of other crazy stuffs if you want to =D
+
+**What is new in version 1.0.3**
+
+Fixed new implementation blocks signatures: because of an Apple documentation issue, we were using the wrong block signature for implementation redefinitions. Now you can use blocks with any signature, so you can redefine any type of methods, not only those returning pointers =)
 
 **What is new in version 1.0.2**
 
@@ -13,8 +18,10 @@ Setting a redefinition in place stops a previous redefition of the same target. 
 
 Starting and stoping to use a redefinition are now synchronized operations, what makes ```ALDRedefinition``` thread safe.
 
-Installation via CocoaPods
---------------------------
+Installation
+------------
+
+**Redefine** is available through [CocoaPods](http://cocoapods.org), to install it simply add the following line to your Podfile:
 
 ```ruby
 pod "Redefine"
@@ -32,7 +39,7 @@ Let's say you want to test a behavior for a given signed user, which is managed 
 {
     [ALDRedefinition redefineClass: [UserManager class]
                           selector: @selector( currentUsername )
-                withImplementation: ^id(id object, SEL selector, ...) {
+                withImplementation: ^id(id object, ...) {
                     return @"John Doe";
                 }];
              
@@ -62,7 +69,7 @@ Let's say you want to test a specific behavior that only happens when a value is
 {
     [ALDRedefinition redefineClassInstances: [NSUserDefaults class]
                                    selector: @selector( objectForKey: )
-                         withImplementation: ^id(id object, SEL selector, ...) {
+                         withImplementation: ^id(id object, ...) {
                              return @"Value";
                          }];
     
@@ -88,7 +95,7 @@ The code below will not work because ```NSArray``` is a class cluster, so it ret
     // ERROR! THIS WILL NOT WORK AS EXPECTED!!!
     [ALDRedefinition redefineClassInstances: [NSArray class]
                                    selector: @selector( objectAtIndex: )
-                         withImplementation:^id(id object, SEL selector, ...) {
+                         withImplementation:^id(id object, ...) {
                              return @"Mock";
                          }];
     
@@ -108,7 +115,7 @@ For it to work, we would need to use ```testArray``` real class. So, the correct
     // Ah-ha! Now everything is fine =)
     [ALDRedefinition redefineClassInstances: [testArray class]
                                    selector: @selector( objectAtIndex: )
-                         withImplementation:^id(id object, SEL selector, ...) {
+                         withImplementation:^id(id object, ...) {
                              return @"Mock";
                          }];
     
@@ -124,7 +131,7 @@ Of course you don't need to deallocate a redefinition object to make it uneffect
 ```objc
 ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                selector: @selector( firstObject )
-                                                     withImplementation:^id(id object, SEL selector, ...) {
+                                                     withImplementation:^id(id object, ...) {
                                                          return testArray.lastObject;
                                                      }];
                                                      
@@ -156,7 +163,7 @@ NSString *test = @"original value";
 // Creates a redefinition for NSString description
 ALDRedefinition *firstRedefinition = [ALDRedefinition redefineClassInstances: [NSString class]
                                                                     selector: @selector( description )
-                                                          withImplementation:^id(id object, SEL selector, ...) {
+                                                          withImplementation:^id(id object, ...) {
                                                               return @"first";
                                                           }];
 
@@ -166,7 +173,7 @@ assert( [[test description] isEqualToString: @"first"] );
 // Creates another redefinition for NSString description
 ALDRedefinition *secondRedefinition = [ALDRedefinition redefineClassInstances: [NSString class]
                                                                      selector: @selector( description )
-                                                           withImplementation:^id(id object, SEL selector, ...) {
+                                                           withImplementation:^id(id object, ...) {
                                                                return @"second";
                                                            }];
 
@@ -193,14 +200,18 @@ assert( firstRedefinition.usingRedefinition == NO );
 assert( secondRedefinition.usingRedefinition == NO );
 ```
 
+Author
+------
+
+- [Daniel L. Alves](http://github.com/danielalves) ([@alveslopesdan](https://twitter.com/alveslopesdan))
+
 Collaborators
 --------------
 
-- [Daniel L. Alves](http://github.com/danielalves) ([@alveslopesdan](https://twitter.com/alveslopesdan))
 - [Gustavo Barbosa](http://github.com/barbosa) ([@gustavocsb](https://twitter.com/gustavocsb))
 - [Flavia Missi](http://github.com/flaviamissi) ([@flaviamissi](https://twitter.com/flaviamissi))
 
 License
 -------
 
-Redefine is available under the MIT license. See the LICENSE file for more info.
+**Redefine** is available under the MIT license. See the LICENSE file for more info.
