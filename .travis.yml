@@ -1,1 +1,3 @@
 language: objective-c
+xcode_project: Redefine.xcodeproj
+xcode_scheme: Redefine
