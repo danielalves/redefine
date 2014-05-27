@@ -28,7 +28,7 @@
  *  Returns if the redefinition is in place.
  *
  *  Since version 1.0.2, this property is KVO compliant.
- * 
+ *
  *  @see startUsingRedefinition
  *  @see stopUsingRedefinition
  */
@@ -48,16 +48,12 @@
  *
  *  @see startUsingRedefinition
  *  @see redefineClassInstances:selector:withImplementation:
- *  @see redefineSingleInstance:selector:withImplementation:
  */
 +( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock;
 
 /**
  *  Creates an instance method redefinition for all instances of a class and calls startUsingRedefinition to set it in place.
  *
- *  This method differs from redefineSingleInstance:selector:withImplementation: in that it redefines the instance
- *  method for all instances of the class, instead of just a single instance
- *
  *  @param aClass                 The class whose instance method we want to redefine
  *  @param selector               The instance method we want to redefine
  *  @param newImplementationBlock The new implementation of selector. Its signature should be:
@@ -69,35 +65,11 @@
  *
  *  @see startUsingRedefinition
  *  @see redefineClass:selector:withImplementation:
- *  @see redefineSingleInstance:selector:withImplementation:
  */
 +( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock;
 
 /**
- *  Creates an instance method redefinition for a single instance of a class and calls startUsingRedefinition to set it in place.
- *
- *  This method differs from redefineClassInstances:selector:withImplementation: in that it redefines the instance
- *  method for just a single instance of the class, instead of all instances
- *
- *  @param aClass                 The class whose instance method we want to redefine
- *  @param selector               The instance method we want to redefine
- *  @param newImplementationBlock The new implementation of selector. Its signature should be:
- *                                method_return_type ^(id self, ...)
- *
- *  @return An ALDRedefinition object that can control the selector redefinition
- *
- *  @throws NSInvalidArgumentException If any argument is null or if instances of aClass do not respond to selector
- *
- *  @see startUsingRedefinition
- *  @see redefineClass:selector:withImplementation:
- *  @see redefineClassInstances:selector:withImplementation:
- *
- *  @since 1.1.0
- */
-+( instancetype )redefineSingleInstance:( NSObject * )instance selector:( SEL )selector withImplementation:( id )newImplementationBlock;
-
-/**
- *  Sets the redefinition represented by this object in place. That is, replaces the original implementation of the selector by the 
+ *  Sets the redefinition represented by this object in place. That is, replaces the original implementation of the selector by the
  *  new implementation.
  *
  *  Since version 1.0.2, this method is synchronized and stops a previous redefinition on the same target.
