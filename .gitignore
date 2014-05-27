@@ -44,4 +44,4 @@ Temporary Items
 
 ###### Git ######
 
-.orig
+*.orig

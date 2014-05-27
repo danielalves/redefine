@@ -13,7 +13,6 @@
 		12E5007318FC48D800720F95 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12E5007218FC48D800720F95 /* XCTest.framework */; };
 		12E5007418FC48D800720F95 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 12E5006418FC48D800720F95 /* Foundation.framework */; };
 		12E5007918FC48D800720F95 /* libRedefine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 12E5006118FC48D800720F95 /* libRedefine.a */; };
-		12E5007F18FC48D800720F95 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 12E5007D18FC48D800720F95 /* InfoPlist.strings */; };
 		12E5008118FC48D800720F95 /* ALDRedefinitionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 12E5008018FC48D800720F95 /* ALDRedefinitionTests.m */; };
 /* End PBXBuildFile section */
 
@@ -43,13 +42,11 @@
 /* Begin PBXFileReference section */
 		12E5006118FC48D800720F95 /* libRedefine.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRedefine.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		12E5006418FC48D800720F95 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		12E5006818FC48D800720F95 /* Redefine-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Redefine-Prefix.pch"; sourceTree = "<group>"; };
 		12E5006918FC48D800720F95 /* ALDRedefinition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ALDRedefinition.h; sourceTree = "<group>"; };
 		12E5006B18FC48D800720F95 /* ALDRedefinition.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ALDRedefinition.m; sourceTree = "<group>"; };
 		12E5007118FC48D800720F95 /* RedefineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RedefineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		12E5007218FC48D800720F95 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		12E5007C18FC48D800720F95 /* RedefineTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RedefineTests-Info.plist"; sourceTree = "<group>"; };
-		12E5007E18FC48D800720F95 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		12E5008018FC48D800720F95 /* ALDRedefinitionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ALDRedefinitionTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -108,17 +105,8 @@
 			children = (
 				12E5006918FC48D800720F95 /* ALDRedefinition.h */,
 				12E5006B18FC48D800720F95 /* ALDRedefinition.m */,
-				12E5006718FC48D800720F95 /* Supporting Files */,
 			);
 			path = Redefine;
-			sourceTree = "<group>";
-		};
-		12E5006718FC48D800720F95 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				12E5006818FC48D800720F95 /* Redefine-Prefix.pch */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		12E5007A18FC48D800720F95 /* RedefineTests */ = {
@@ -134,7 +122,6 @@
 			isa = PBXGroup;
 			children = (
 				12E5007C18FC48D800720F95 /* RedefineTests-Info.plist */,
-				12E5007D18FC48D800720F95 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -209,7 +196,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				12E5007F18FC48D800720F95 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,17 +227,6 @@
 			targetProxy = 12E5007718FC48D800720F95 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		12E5007D18FC48D800720F95 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				12E5007E18FC48D800720F95 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		12E5008218FC48D800720F95 /* Debug */ = {
@@ -327,7 +302,6 @@
 			buildSettings = {
 				DSTROOT = /tmp/Redefine.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Redefine/Redefine-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = Redefine;
 				SKIP_INSTALL = YES;
@@ -339,7 +313,6 @@
 			buildSettings = {
 				DSTROOT = /tmp/Redefine.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Redefine/Redefine-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = Redefine;
 				SKIP_INSTALL = YES;
@@ -355,7 +328,6 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Redefine/Redefine-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -375,7 +347,6 @@
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Redefine/Redefine-Prefix.pch";
 				INFOPLIST_FILE = "RedefineTests/RedefineTests-Info.plist";
 				PRODUCT_NAME = RedefineTests;
 				WRAPPER_EXTENSION = xctest;
