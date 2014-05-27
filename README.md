@@ -9,6 +9,10 @@ redefine
 
 The obvious use for it is unit tests. You don't have to prepare your code specifically for tests using factories, interfaces and etc, since it's possible to redefine any class or instance method. But, of course, you can do a lot of other crazy stuffs if you want to =D
 
+**What is new in version 1.0.4**
+
+Removed some unnecessary files and fixed some project configurations
+
 **What is new in version 1.0.3**
 
 Fixed new implementation blocks signatures: because of an Apple documentation issue, we were using the wrong block signature for implementation redefinitions. Now you can use blocks with any signature, so you can redefine any type of methods, not only those returning pointers =)
