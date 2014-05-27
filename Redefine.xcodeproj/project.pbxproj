@@ -172,6 +172,11 @@
 			attributes = {
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = "Daniel L. Alves";
+				TargetAttributes = {
+					12E5007018FC48D800720F95 = {
+						TestTargetID = 12E5006018FC48D800720F95;
+					};
+				};
 			};
 			buildConfigurationList = 12E5005C18FC48D800720F95 /* Build configuration list for PBXProject "Redefine" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -260,7 +265,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 			};
@@ -291,7 +297,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -302,6 +309,8 @@
 			buildSettings = {
 				DSTROOT = /tmp/Redefine.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = Redefine;
 				SKIP_INSTALL = YES;
@@ -313,6 +322,8 @@
 			buildSettings = {
 				DSTROOT = /tmp/Redefine.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = Redefine;
 				SKIP_INSTALL = YES;
@@ -333,6 +344,8 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "RedefineTests/RedefineTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				MACOSX_DEPLOYMENT_TARGET = "";
 				PRODUCT_NAME = RedefineTests;
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -348,6 +361,8 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				INFOPLIST_FILE = "RedefineTests/RedefineTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				MACOSX_DEPLOYMENT_TARGET = "";
 				PRODUCT_NAME = RedefineTests;
 				WRAPPER_EXTENSION = xctest;
 			};
