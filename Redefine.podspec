@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Redefine"
-  s.version      = "1.0.4"
+  s.version      = "1.0.5"
   s.summary      = "Redefine makes easier to overwrite methods implementations during runtime using the objc runtime."
   s.homepage     = "https://github.com/danielalves/redefine"
   s.license      = "MIT"
