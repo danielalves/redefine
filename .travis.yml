@@ -1,4 +1,4 @@
 language: objective-c
 xcode_project: Redefine.xcodeproj
 xcode_scheme: Redefine
-xcode_sdk: iphonesimulator6.1
+xcode_sdk: iphonesimulator7.1
