@@ -9,9 +9,9 @@ redefine
 
 The obvious use for it is unit tests. You don't have to prepare your code specifically for tests using factories, interfaces and etc, since it's possible to redefine any class or instance method. But, of course, you can do a lot of other crazy stuffs if you want to =D
 
-**What is new in version 1.0.4**
+**What is new in version 1.0.4 and 1.0.5**
 
-Removed some unnecessary files and fixed some project configurations
+Removed some unnecessary files, fixed project configurations, fixed some mixed branches issues.
 
 **What is new in version 1.0.3**
 
