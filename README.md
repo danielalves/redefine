@@ -23,15 +23,6 @@ Setting a redefinition in place stops a previous redefition of the same target. 
 
 Starting and stoping to use a redefinition are now synchronized operations, what makes ```ALDRedefinition``` thread safe.
 
-Installation
-------------
-
-**Redefine** is available through [CocoaPods](http://cocoapods.org), to install it simply add the following line to your Podfile:
-
-```ruby
-pod "Redefine"
-```
-
 Examples
 --------
 
@@ -204,6 +195,20 @@ assert( [[test description] isEqualToString: @"original value"] );
 assert( firstRedefinition.usingRedefinition == NO );
 assert( secondRedefinition.usingRedefinition == NO );
 ```
+
+Installation
+------------
+
+**Redefine** is available through [CocoaPods](http://cocoapods.org), to install it simply add the following line to your Podfile:
+
+```ruby
+pod "Redefine"
+```
+
+Requirements
+------------
+
+iOS 6.0 or higher, OSX 10.7 or higher, ARC only
 
 Author
 ------
