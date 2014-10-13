@@ -20,13 +20,13 @@ typedef id( ^ALDRedefinitionPolymorphicBlock )( SEL selectorBeingRedefined, IMP 
  *  to make sure to mantain a reference to the redefinition object for it to take place. When it is deallocated, everything
  *  goes back to normal.
  *
- *  <B> Since version 1.0.2 </B>
+ *  Main features are:
  *
- *  Setting a redefinition in place stops a previous redefition of the same target. Hence, it it possible to create multiple
- *  redefinitions of the same class/instance selector and use them at will. The property usingRedefinition has become KVO
- *  compliant, so it is possible to listen to these changes.
- *
- *  Starting and stoping to use a redefinition are synchronized operations, what makes ALDRedefinition thread safe.
+ *  - Swizzle class and instance methods
+ *  - Create more than one redefinition for the same class/instance method
+ *  - Start/stop a redefinition at will
+ *  - Call original selector implementations from redefined implementations
+ *  - Thread safety
  */
 @interface ALDRedefinition : NSObject
 
