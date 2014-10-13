@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "Redefine"
-  s.version      = "1.0.6"
+  s.version      = "1.1.0"
   s.summary      = "iOS and OS X easy method swizzling - that is, method redefinitions at runtime"
   s.description  = <<-DESC
                    Redefine makes easier to achieve method swizzling - that is, to overwrite methods implementations during runtime using the objc runtime. It also makes possible to switch back and forth through implementations, the original and the new one.
