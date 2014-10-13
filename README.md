@@ -9,22 +9,23 @@ redefine
 
 The obvious use for it is unit tests. You don't have to prepare your code specifically for tests using factories, interfaces and etc, since it's possible to redefine any class or instance method. But, of course, you can do a lot of other crazy stuffs if you want to =D
 
-**What is new in version 1.0.4 and 1.0.5**
+Other features are:
 
-Removed some unnecessary files, fixed project configurations, fixed some mixed branches issues.
+- Swizzle class and instance methods
+- Create more than one redefinition for the same class/instance method
+- Start/stop a redefinition at will
+- Call original selector implementations from redefined implementations
+- Thread safety
 
-**What is new in version 1.0.3**
+**What is new in version 1.1.0**
 
-Fixed new implementation blocks signatures: because of an Apple documentation issue, we were using the wrong block signature for implementation redefinitions. Now you can use blocks with any signature, so you can redefine any type of methods, not only those returning pointers =)
-
-**What is new in version 1.0.2**
-
-Setting a redefinition in place stops a previous redefition of the same target. Hence, it it possible to create multiple redefinitions of the same class/instance selector and use them at will. The property ```usingRedefinition``` has become KVO compliant, so it is possible to listen to these changes.
-
-Starting and stoping to use a redefinition are now synchronized operations, what makes ```ALDRedefinition``` thread safe.
+Added the possibility to call original implementations from redefined implementations!
+For more info about each version, see [CHANGELOG](https://github.com/danielalves/redefine/blob/master/CHANGELOG.md)
 
 Examples
 --------
+
+**ATTENTION:** Apple documentation says new implementations must have the signature `id^(id object, SEL selector, method_args...)`, what is **WRONG**. You should follow the signature specified in Redefine docs: `id^(id object, method_args...)`
 
 **1) Redefining a class method**
 
@@ -33,9 +34,9 @@ Let's say you want to test a behavior for a given signed user, which is managed 
 ```objc
 -( void )test_Greetings
 {
-    [ALDRedefinition redefineClass: [UserManager class]
-                          selector: @selector( currentUsername )
-                withImplementation: ^id(id object, ...) {
+    ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [UserManager class]
+                                                          selector: @selector( currentUsername )
+                                                withImplementation: ^id(id object, ...) {
                     return @"John Doe";
                 }];
              
@@ -63,9 +64,9 @@ Let's say you want to test a specific behavior that only happens when a value is
 ```objc
 -( void )test_When_Value_Is_Set_On_Standard_Defaults
 {
-    [ALDRedefinition redefineClassInstances: [NSUserDefaults class]
-                                   selector: @selector( objectForKey: )
-                         withImplementation: ^id(id object, ...) {
+    ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSUserDefaults class]
+                                                                   selector: @selector( objectForKey: )
+                                                         withImplementation: ^id(id object, ...) {
                              return @"Value";
                          }];
     
@@ -89,9 +90,9 @@ The code below will not work because ```NSArray``` is a class cluster, so it ret
     NSArray *testArray = @[ @1, @2, @3 ];
 
     // ERROR! THIS WILL NOT WORK AS EXPECTED!!!
-    [ALDRedefinition redefineClassInstances: [NSArray class]
-                                   selector: @selector( objectAtIndex: )
-                         withImplementation:^id(id object, ...) {
+    ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
+                                                                   selector: @selector( objectAtIndex: )
+                                                         withImplementation: ^id(id object, ...) {
                              return @"Mock";
                          }];
     
@@ -109,9 +110,9 @@ For it to work, we would need to use ```testArray``` real class. So, the correct
     NSArray *testArray = @[ @1, @2, @3 ];
 
     // Ah-ha! Now everything is fine =)
-    [ALDRedefinition redefineClassInstances: [testArray class]
-                                   selector: @selector( objectAtIndex: )
-                         withImplementation:^id(id object, ...) {
+    ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [testArray class]
+                                                                   selector: @selector( objectAtIndex: )
+                                                         withImplementation: ^id(id object, ...) {
                              return @"Mock";
                          }];
     
@@ -127,7 +128,7 @@ Of course you don't need to deallocate a redefinition object to make it uneffect
 ```objc
 ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                selector: @selector( firstObject )
-                                                     withImplementation:^id(id object, ...) {
+                                                     withImplementation: ^id(id object, ...) {
                                                          return testArray.lastObject;
                                                      }];
                                                      
@@ -159,7 +160,7 @@ NSString *test = @"original value";
 // Creates a redefinition for NSString description
 ALDRedefinition *firstRedefinition = [ALDRedefinition redefineClassInstances: [NSString class]
                                                                     selector: @selector( description )
-                                                          withImplementation:^id(id object, ...) {
+                                                          withImplementation: ^id(id object, ...) {
                                                               return @"first";
                                                           }];
 
@@ -169,7 +170,7 @@ assert( [[test description] isEqualToString: @"first"] );
 // Creates another redefinition for NSString description
 ALDRedefinition *secondRedefinition = [ALDRedefinition redefineClassInstances: [NSString class]
                                                                      selector: @selector( description )
-                                                           withImplementation:^id(id object, ...) {
+                                                           withImplementation: ^id(id object, ...) {
                                                                return @"second";
                                                            }];
 
@@ -194,6 +195,28 @@ assert( [[test description] isEqualToString: @"original value"] );
 // Hence, no redefinition is in use
 assert( firstRedefinition.usingRedefinition == NO );
 assert( secondRedefinition.usingRedefinition == NO );
+```
+
+**6) Calling original selector implementations from redefined implementations**
+
+```objc
+NSArray *testArray = @[ @0, @1, @2 ];
+ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [testArray class]
+                                                               selector: @selector( objectAtIndex: )
+                                          withPolymorphicImplementation: ^id( SEL selectorBeingRedefined, IMP originalImplementation ) {
+
+                                             return ^id( id object, ... ) {
+                                                 va_list args;
+                                                 va_start( args, object );
+                                                 NSUInteger index = va_arg( args, NSUInteger );
+                                                 va_end( args );
+
+                                                 id original = originalImplementation( object, selectorBeingRedefined, index );
+                                                 return [NSString stringWithFormat: @"Mock%@", original];
+                                             };
+                                         }];
+
+assert( [[testArray objectAtIndex: 2] isEqualToString: @"Mock2"] );
 ```
 
 Installation
