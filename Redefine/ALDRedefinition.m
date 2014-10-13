@@ -34,54 +34,81 @@
 
 +( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock
 {
-    return [[ALDRedefinition alloc] initWithClass: aClass
+    return [self redefineClass: aClass
+                      selector: selector
+ withPolymorphicImplementation: ^id( SEL selectorBeingRedefined, IMP originalImplementation ){ return newImplementationBlock; }];
+}
+
++( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withPolymorphicImplementation:( ALDRedefinitionPolymorphicBlock )newPolymorphicImplementationBlock;
+{
+    ALDRedefinition *temp =  [[ALDRedefinition alloc] initWithClass: aClass
                                          selector: selector
-                                newImplementation: newImplementationBlock
+                     newPolymorphicImplementation: newPolymorphicImplementationBlock
                                   isClassSelector: YES];
+    return temp;
 }
 
 +( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock
 {
-    return [[ALDRedefinition alloc] initWithClass: aClass
+    return [self redefineClassInstances: aClass
+                               selector: selector
+          withPolymorphicImplementation: ^id( SEL selectorBeingRedefined, IMP originalImplementation ){ return newImplementationBlock; }];
+}
+
+
++( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withPolymorphicImplementation:( ALDRedefinitionPolymorphicBlock )newPolymorphicImplementationBlock;
+{
+    ALDRedefinition *temp = [[ALDRedefinition alloc] initWithClass: aClass
                                          selector: selector
-                                newImplementation: newImplementationBlock
+                     newPolymorphicImplementation: newPolymorphicImplementationBlock
                                   isClassSelector: NO];
+    return temp;
 }
 
 -( instancetype )initWithClass:( Class )aClass
                       selector:( SEL )selector
-             newImplementation:( id )newImplementationBlock
+  newPolymorphicImplementation:( ALDRedefinitionPolymorphicBlock )newPolymorphicImplementationBlock
                isClassSelector:( BOOL )isClassSelector
 {
-    if( !aClass || !selector || !newImplementationBlock )
+    if( !aClass || !selector || !newPolymorphicImplementationBlock )
         [NSException raise: NSInvalidArgumentException
                     format: @"All parameters must not be nil"];
-    
+
     self = [super init];
     if( self )
     {
         _targetSelector = selector;
         _redefiningMetaClass = isClassSelector;
-        
+
+        Method currentMethod = NULL;
         if( isClassSelector )
         {
             _targetClass = objc_getMetaClass( class_getName( aClass ));
-            
-            if( !class_getClassMethod( _targetClass, selector ))
+            currentMethod = class_getClassMethod( _targetClass, selector );
+
+            if( !currentMethod )
                 [NSException raise: NSInvalidArgumentException
                             format: @"%s does not respond to %s", class_getName( _targetClass ), sel_getName( selector )];
         }
         else
         {
             _targetClass = aClass;
-            
-            if( !class_getInstanceMethod( _targetClass, selector ))
+            currentMethod = class_getInstanceMethod( _targetClass, selector );
+
+            if( !currentMethod )
                 [NSException raise: NSInvalidArgumentException
                             format: @"%s instances do not respond to %s", class_getName( _targetClass ), sel_getName( selector )];
         }
-        
+
+        IMP currentImplementation = method_getImplementation( currentMethod );
+        id newImplementationBlock = newPolymorphicImplementationBlock( selector, currentImplementation );
+        if( !newImplementationBlock )
+            [NSException raise: NSInvalidArgumentException
+                        format: @"New implementation must not be nil"];
+
+
         redefinedImplementation = imp_implementationWithBlock( newImplementationBlock );
-        
+
         [self startUsingRedefinition];
     }
     return self;
@@ -90,7 +117,7 @@
 -( void )dealloc
 {
     [self stopUsingRedefinition];
-    
+
     if( redefinedImplementation )
     {
         imp_removeBlock( redefinedImplementation );
@@ -107,9 +134,9 @@
         if( !_usingRedefinition )
         {
             [ALDRedefinition stopPreviousRedefinitionWithSameTargetAndRegisterRedefinition: self];
-            
+
             originalImplementation = class_replaceMethod( _targetClass, _targetSelector, redefinedImplementation, NULL );
-            
+
             self.usingRedefinition = YES;
         }
     }
@@ -138,11 +165,11 @@
                                                                        isClassSelector: redefinition.redefiningMetaClass];
         if( sameTargetRedefinition )
             [sameTargetRedefinition stopUsingRedefinition];
-        
+
         NSString *key = [self keyFromSelector: redefinition.targetSelector
                                       ofClass: redefinition.targetClass
                               isClassSelector: redefinition.redefiningMetaClass];
-        
+
         [[self currentRedefinitions] setObject: redefinition forKey: key];
     }
 }
@@ -161,12 +188,12 @@
     @synchronized( self )
     {
         static NSMapTable *currentRedefinitions = nil;
-        
+
         // If we do not hold weak references to the redefinitions, they'll never be dealocated. Hence we would
         // never bring the original implementations back
         if( !currentRedefinitions )
             currentRedefinitions = [NSMapTable strongToWeakObjectsMapTable];
-        
+
         return currentRedefinitions;
     }
 }

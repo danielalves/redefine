@@ -14,6 +14,23 @@
 // objc
 #import <objc/runtime.h>
 
+#pragma mark - Defines
+
+#define SuppressUnusedVariableWarning_Init                  \
+_Pragma("clang diagnostic push")                            \
+_Pragma("clang diagnostic ignored \"-Wunused-variable\"")
+
+#define SuppressUnusedVariableWarning_End                   \
+_Pragma("clang diagnostic pop")
+
+#define SuppressUnusedVariableWarning(commands)             \
+do                                                          \
+{                                                           \
+SuppressUnusedVariableWarning_Init                          \
+commands;                                                   \
+SuppressUnusedVariableWarning_End                           \
+} while(0)
+
 #pragma mark - Conts
 
 static NSString * const kUsingRedefinitionPropertyKeyPath = @"usingRedefinition";
@@ -54,29 +71,76 @@ static NSString *kvoContext = nil;
 
 -( void )test_Redefines_Zero_Argument_Class_Methods
 {
-    [ALDRedefinition redefineClass: [NSBundle class]
-                          selector: @selector( mainBundle )
-                withImplementation:^id(id object, SEL selector, ...) {
-                    return mockedMainBundle;
-                }];
-    
-    XCTAssertEqual( [NSBundle mainBundle], mockedMainBundle );
+    SuppressUnusedVariableWarning(
+        // Compiling for 64 bits, the instance returned by the method below would
+        // be deallocated just after its creation, that's why we MUST keep a reference to it.
+        // On 32 bits it would be released after the method, so there would be no reason
+        // for it
+        ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSBundle class]
+                              selector: @selector( mainBundle )
+                    withImplementation: ^id( id object, ... ) {
+                        return mockedMainBundle;
+                    }];
+
+        XCTAssertEqual( [NSBundle mainBundle], mockedMainBundle );
+    );
 }
 
 -( void )test_Redefines_Class_Methods_With_Arguments
 {
     NSString *mockedResult = @"some/thing/string.txt";
-    
-    [ALDRedefinition redefineClass: [NSString class]
-                          selector: @selector( pathWithComponents: )
-                withImplementation:^id(id object, SEL selector, ...) {
-                    return mockedResult;
-                }];
-    
     NSArray *components = @[ @"something", @"different", @"from_above.txt" ];
-    XCTAssertNotEqualObjects( [NSString pathWithComponents: components], @"something/different/from_above.txt" );
-    
-    XCTAssertEqualObjects( [NSString pathWithComponents: components], mockedResult );
+
+    SuppressUnusedVariableWarning(
+        // Compiling for 64 bits, the instance returned by the method below would
+        // be deallocated just after its creation, that's why we MUST keep a reference to it.
+        // On 32 bits it would be released after the method, so there would be no reason
+        // for it
+        ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSString class]
+                                                            selector: @selector( pathWithComponents: )
+                                                  withImplementation: ^id( id object, ... ) {
+                                                      return mockedResult;
+                                                  }];
+
+        XCTAssertNotEqualObjects( [NSString pathWithComponents: components], @"something/different/from_above.txt" );
+        
+        XCTAssertEqualObjects( [NSString pathWithComponents: components], mockedResult );
+    );
+}
+
+-( void )test_Redefines_Class_Methods_Using_Original_Implementation
+{
+    NSString *mockedResult = @"some/thing/string.txt";
+    NSArray *components = @[ @"something", @"different", @"from_above.txt" ];
+
+    NSString *expected = [NSString stringWithFormat: @"%@%@", [NSString pathWithComponents: components], mockedResult];
+
+    SuppressUnusedVariableWarning_Init
+    {
+        // Compiling for 64 bits, the instance returned by the method below would
+        // be deallocated just after its creation, that's why we MUST keep a reference to it.
+        // On 32 bits it would be released after the method, so there would be no reason
+        // for it
+        ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSString class]
+                                                            selector: @selector( pathWithComponents: )
+                                                  withPolymorphicImplementation: ^id( SEL selectorBeingRedefined, IMP originalImplementation ) {
+
+                                                      return ^id( id object, ... ) {
+                                                          va_list args;
+                                                          va_start( args, object );
+                                                          NSArray *components = va_arg( args, NSArray * );
+                                                          va_end( args );
+
+                                                          NSString *original = originalImplementation( object, selectorBeingRedefined, components );
+                                                          return [NSString stringWithFormat: @"%@%@", original, mockedResult];
+                                                      };
+                                                  }];
+
+        XCTAssertNotEqualObjects( [NSString pathWithComponents: components], @"something/different/from_above.txt" );
+
+        XCTAssertEqualObjects( [NSString pathWithComponents: components], expected );
+    }
+    SuppressUnusedVariableWarning_End
 }
 
 -( void )test_redefineClass_Multiple_Redefinitions_With_Same_Target_Keep_Consistency_Between_All_Redefinitions
@@ -85,7 +149,7 @@ static NSString *kvoContext = nil;
     
     ALDRedefinition *firstRedefinition = [ALDRedefinition redefineClass: [NSString class]
                                                                selector: @selector( stringWithString: )
-                                                     withImplementation:^id(id object, SEL selector, ...) {
+                                                     withImplementation: ^id( id object, ... ) {
                                                          return @"first";
                                                      }];
     
@@ -94,7 +158,7 @@ static NSString *kvoContext = nil;
     
     ALDRedefinition *secondRedefinition = [ALDRedefinition redefineClass: [NSString class]
                                                                 selector: @selector( stringWithString: )
-                                                      withImplementation:^id(id object, SEL selector, ...) {
+                                                      withImplementation: ^id( id object, ... ) {
                                                           return @"second";
                                                       }];
     
@@ -121,7 +185,7 @@ static NSString *kvoContext = nil;
 {
     XCTAssertThrowsSpecificNamed( [ALDRedefinition redefineClass: nil
                                                         selector: @selector( mainBundle )
-                                              withImplementation:^id(id object, SEL selector, ...) {
+                                              withImplementation: ^id( id object, ... ) {
                                                   return mockedMainBundle;
                                               }],
                                  NSException,
@@ -132,7 +196,7 @@ static NSString *kvoContext = nil;
 {
     XCTAssertThrowsSpecificNamed( [ALDRedefinition redefineClass: [NSBundle class]
                                                         selector: nil
-                                              withImplementation:^id(id object, SEL selector, ...) {
+                                              withImplementation: ^id( id object, ... ) {
                                                   return mockedMainBundle;
                                               }],
                                  NSException,
@@ -152,7 +216,7 @@ static NSString *kvoContext = nil;
 {
     XCTAssertThrowsSpecificNamed( [ALDRedefinition redefineClass: [NSBundle class]
                                                         selector: @selector( lowercaseString /* Any non-NSBundle method */ )
-                                              withImplementation: ^id(id object, SEL selector, ...) {
+                                              withImplementation: ^id( id object, ... ) {
                                                   return mockedMainBundle;
                                               }],
                                  NSException,
@@ -163,11 +227,17 @@ static NSString *kvoContext = nil;
 {
     @autoreleasepool
     {
-        [ALDRedefinition redefineClass: [NSBundle class]
-                              selector: @selector( mainBundle )
-                    withImplementation:^id(id object, SEL selector, ...) {
-                        return mockedMainBundle;
-                    }];
+        SuppressUnusedVariableWarning(
+            // Compiling for 64 bits, the instance returned by the method below would
+            // be deallocated just after its creation, that's why we MUST keep a reference to it.
+            // On 32 bits it would be released after the method, so there would be no reason
+            // for it
+            ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSBundle class]
+                                                                  selector: @selector( mainBundle )
+                                                        withImplementation: ^id( id object, ... ) {
+                                                            return mockedMainBundle;
+                                                        }];
+        );
     }
     
     XCTAssertEqual( [NSBundle mainBundle], originalMainBundle );
@@ -177,7 +247,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSBundle class]
                                                           selector: @selector( mainBundle )
-                                                withImplementation:^id(id object, SEL selector, ...) {
+                                                withImplementation: ^id( id object, ... ) {
                                                     return mockedMainBundle;
                                                 }];
     
@@ -190,7 +260,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSBundle class]
                                                           selector: @selector( mainBundle )
-                                                withImplementation:^id(id object, SEL selector, ...) {
+                                                withImplementation: ^id( id object, ... ) {
                                                     return mockedMainBundle;
                                                 }];
     
@@ -204,7 +274,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSBundle class]
                                                           selector: @selector( mainBundle )
-                                                withImplementation:^id(id object, SEL selector, ...) {
+                                                withImplementation: ^id( id object, ... ) {
                                                     return mockedMainBundle;
                                                 }];
     [redefinition startUsingRedefinition];
@@ -216,7 +286,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSBundle class]
                                                           selector: @selector( mainBundle )
-                                                withImplementation:^id(id object, SEL selector, ...) {
+                                                withImplementation: ^id( id object, ... ) {
                                                     return mockedMainBundle;
                                                 }];
     [redefinition stopUsingRedefinition];
@@ -229,7 +299,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSBundle class]
                                                           selector: @selector( mainBundle )
-                                                withImplementation:^id(id object, SEL selector, ...) {
+                                                withImplementation: ^id( id object, ... ) {
                                                     return mockedMainBundle;
                                                 }];
     XCTAssertTrue( redefinition.usingRedefinition );
@@ -247,7 +317,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClass: [NSBundle class]
                                                           selector: @selector( mainBundle )
-                                                withImplementation:^id(id object, SEL selector, ...) {
+                                                withImplementation: ^id( id object, ... ) {
                                                     return mockedMainBundle;
                                                 }];
     
@@ -280,25 +350,72 @@ static NSString *kvoContext = nil;
 
 -( void )test_Redefines_Zero_Arguments_Class_Instances_Methods
 {
-    [ALDRedefinition redefineClassInstances: [NSArray class]
-                                   selector: @selector( firstObject )
-                         withImplementation:^id(id object, SEL selector, ...) {
-                             return testArray.lastObject;
-                         }];
-    
-    XCTAssertEqual( testArray.firstObject, testArray.lastObject );
+    SuppressUnusedVariableWarning(
+        // Compiling for 64 bits, the instance returned by the method below would
+        // be deallocated just after its creation, that's why we MUST keep a reference to it.
+        // On 32 bits it would be released after the method, so there would be no reason
+        // for it
+        ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
+                                                                     selector: @selector( firstObject )
+                                                           withImplementation: ^id( id object, ... ) {
+                                                               return testArray.lastObject;
+                                                           }];
+
+        XCTAssertEqual( testArray.firstObject, testArray.lastObject );
+
+    );
 }
 
 -( void )test_Redefines_Class_Instances_Methods_With_Arguments
 {
-    [ALDRedefinition redefineClassInstances: [testArray class]
-                                   selector: @selector( objectAtIndex: )
-                         withImplementation:^id(id object, SEL selector, ...) {
-                             return @"Mock";
-                         }];
-    
-    for( NSUInteger i = 0 ; i < testArray.count ; i++ )
-        XCTAssertEqualObjects( @"Mock", [testArray objectAtIndex: i] );
+    SuppressUnusedVariableWarning(
+        // Compiling for 64 bits, the instance returned by the method below would
+        // be deallocated just after its creation, that's why we MUST keep a reference to it.
+        // On 32 bits it would be released after the method, so there would be no reason
+        // for it
+        ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [testArray class]
+                                                                     selector: @selector( objectAtIndex: )
+                                                           withImplementation: ^id( id object, ... ) {
+                                                               return @"Mock";
+                                                           }];
+
+        for( NSUInteger i = 0 ; i < testArray.count ; i++ )
+            XCTAssertEqualObjects( @"Mock", [testArray objectAtIndex: i] );
+
+    );
+}
+
+
+-( void )test_Redefines_Class_Instances_Methods_Using_Original_Implementation
+{
+    SuppressUnusedVariableWarning_Init
+    {
+        // Compiling for 64 bits, the instance returned by the method below would
+        // be deallocated just after its creation, that's why we MUST keep a reference to it.
+        // On 32 bits it would be released after the method, so there would be no reason
+        // for it
+        ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [testArray class]
+                                                                       selector: @selector( objectAtIndex: )
+                                                  withPolymorphicImplementation: ^id( SEL selectorBeingRedefined, IMP originalImplementation ) {
+
+                                             return ^id( id object, ... ) {
+                                                 va_list args;
+                                                 va_start( args, object );
+                                                 NSUInteger index = va_arg( args, NSUInteger );
+                                                 va_end( args );
+
+                                                 id original = originalImplementation( object, selectorBeingRedefined, index );
+                                                 return [NSString stringWithFormat: @"Mock%@", original];
+                                             };
+                                         }];
+
+        for( NSUInteger i = 0 ; i < testArray.count ; i++ )
+        {
+            NSString *expected = [NSString stringWithFormat: @"Mock%@", @(i+1)];
+            XCTAssertEqualObjects( expected, [[testArray objectAtIndex: i] description] );
+        }
+    }
+    SuppressUnusedVariableWarning_End
 }
 
 -( void )test_redefineClassInstances_Multiple_Redefinitions_With_Same_Target_Keep_Consistency_Between_All_Redefinitions
@@ -307,7 +424,7 @@ static NSString *kvoContext = nil;
     
     ALDRedefinition *firstRedefinition = [ALDRedefinition redefineClassInstances: [NSString class]
                                                                         selector: @selector( description )
-                                                              withImplementation:^id(id object, SEL selector, ...) {
+                                                              withImplementation: ^id( id object, ... ) {
                                                                   return @"first";
                                                               }];
     
@@ -315,7 +432,7 @@ static NSString *kvoContext = nil;
     
     ALDRedefinition *secondRedefinition = [ALDRedefinition redefineClassInstances: [NSString class]
                                                                          selector: @selector( description )
-                                                               withImplementation:^id(id object, SEL selector, ...) {
+                                                               withImplementation: ^id( id object, ... ) {
                                                                    return @"second";
                                                                }];
     
@@ -339,7 +456,7 @@ static NSString *kvoContext = nil;
 {
     XCTAssertThrowsSpecificNamed( [ALDRedefinition redefineClassInstances: nil
                                                                  selector: @selector( firstObject )
-                                                       withImplementation:^id(id object, SEL selector, ...) {
+                                                       withImplementation: ^id( id object, ... ) {
                                                            return testArray.lastObject;
                                                        }],
                                  NSException,
@@ -350,7 +467,7 @@ static NSString *kvoContext = nil;
 {
     XCTAssertThrowsSpecificNamed( [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                  selector: nil
-                                                       withImplementation:^id(id object, SEL selector, ...) {
+                                                       withImplementation: ^id( id object, ... ) {
                                                            return testArray.lastObject;
                                                        }],
                                  NSException,
@@ -370,7 +487,7 @@ static NSString *kvoContext = nil;
 {
     XCTAssertThrowsSpecificNamed( [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                  selector: @selector( lowercaseString /* Any non-NSArray instance method */ )
-                                                       withImplementation: ^id(id object, SEL selector, ...) {
+                                                       withImplementation: ^id( id object, ... ) {
                                                            return testArray.lastObject;
                                                        }],
                                  NSException,
@@ -381,11 +498,17 @@ static NSString *kvoContext = nil;
 {
     @autoreleasepool
     {
-        [ALDRedefinition redefineClassInstances: [NSArray class]
-                                       selector: @selector( firstObject )
-                             withImplementation:^id(id object, SEL selector, ...) {
-                                 return testArray.lastObject;
-                             }];
+        SuppressUnusedVariableWarning(
+            // Compiling for 64 bits, the instance returned by the method below would
+            // be deallocated just after its creation, that's why we MUST keep a reference to it.
+            // On 32 bits it would be released after the method, so there would be no reason
+            // for it
+            ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
+                                                                         selector: @selector( firstObject )
+                                                               withImplementation: ^id( id object, ... ) {
+                                                                   return testArray.lastObject;
+                                                               }];
+        );
     }
     
     XCTAssertNotEqual( testArray.firstObject, testArray.lastObject );
@@ -395,7 +518,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                    selector: @selector( firstObject )
-                                                         withImplementation:^id(id object, SEL selector, ...) {
+                                                         withImplementation: ^id( id object, ... ) {
                                                              return testArray.lastObject;
                                                          }];
     
@@ -408,7 +531,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                    selector: @selector( firstObject )
-                                                         withImplementation:^id(id object, SEL selector, ...) {
+                                                         withImplementation: ^id( id object, ... ) {
                                                              return testArray.lastObject;
                                                          }];
     
@@ -422,7 +545,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                    selector: @selector( firstObject )
-                                                         withImplementation:^id(id object, SEL selector, ...) {
+                                                         withImplementation: ^id( id object, ... ) {
                                                              return testArray.lastObject;
                                                          }];
     
@@ -435,7 +558,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                    selector: @selector( firstObject )
-                                                         withImplementation:^id(id object, SEL selector, ...) {
+                                                         withImplementation: ^id( id object, ... ) {
                                                              return testArray.lastObject;
                                                          }];
     
@@ -449,7 +572,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                    selector: @selector( firstObject )
-                                                         withImplementation:^id(id object, SEL selector, ...) {
+                                                         withImplementation: ^id( id object, ... ) {
                                                              return testArray.lastObject;
                                                          }];
     XCTAssertTrue( redefinition.usingRedefinition );
@@ -467,7 +590,7 @@ static NSString *kvoContext = nil;
 {
     ALDRedefinition *redefinition = [ALDRedefinition redefineClassInstances: [NSArray class]
                                                                    selector: @selector( firstObject )
-                                                         withImplementation:^id(id object, SEL selector, ...) {
+                                                         withImplementation: ^id( id object, ... ) {
                                                              return testArray.lastObject;
                                                          }];
     

@@ -9,6 +9,12 @@
 #import <Foundation/Foundation.h>
 
 /**
+ *  Describes a polymorphic reimplementation. That is, a new implementation that may call
+ *  the original implementation of a method
+ */
+typedef id( ^ALDRedefinitionPolymorphicBlock )( SEL selectorBeingRedefined, IMP originalImplementation );
+
+/**
  *  Represents a runtime method redefinition of a class or instance method. It also makes possible to switch back and forth
  *  through implementations, the original and the new one. ALDRedefinition uses the C++ concept of RAII, so the user just have
  *  to make sure to mantain a reference to the redefinition object for it to take place. When it is deallocated, everything
@@ -38,35 +44,91 @@
  *  Creates a redefinition for a class method and calls startUsingRedefinition to set it in place.
  *
  *  @param aClass                 The class whose method we want to redefine
+ *
  *  @param selector               The class method we want to redefine
+ *
  *  @param newImplementationBlock The new implementation of selector. Its signature should be:
- *                                method_return_type ^(id self, ...)
+ *                                method_return_type ^(id self, method_args...)
  *
  *  @return An ALDRedefinition object that can control the selector redefinition
  *
- *  @throws NSInvalidArgumentException If any argument is null or if aClass does not respond to selector
+ *  @throws NSInvalidArgumentException If any argument is nil or if aClass does not respond to selector
  *
  *  @see startUsingRedefinition
+ *  @see redefineClass:selector:withPolymorphicImplementation:
  *  @see redefineClassInstances:selector:withImplementation:
+ *  @see redefineClassInstances:selector:withPolymorphicImplementation:
  */
 +( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock;
+
+/**
+ *  Creates a redefinition for a class method and calls startUsingRedefinition to set it in place.
+ *
+ *  @param aClass                            The class whose method we want to redefine
+ *
+ *  @param selector                          The class method we want to redefine
+ *
+ *  @param newPolymorphicImplementationBlock A block that must return another block that represents the new implementation of 
+ *                                           selector. This way, it is possible to call the original implementation of selector
+ *                                           inside the redefined implementation. The new implementation block signature should be:
+ *                                           method_return_type ^(id self, method_args...)
+ *
+ *  @return An ALDRedefinition object that can control the selector redefinition
+ *
+ *  @throws NSInvalidArgumentException If any argument is nil, if aClass does not respond to selector or if newPolymorphicImplementationBlock
+ *                                     returns nil
+ *
+ *  @see startUsingRedefinition
+ *  @see redefineClass:selector:withImplementation:
+ *  @see redefineClassInstances:selector:withImplementation:
+ *  @see redefineClassInstances:selector:withPolymorphicImplementation:
+ */
++( instancetype )redefineClass:( Class )aClass selector:( SEL )selector withPolymorphicImplementation:( ALDRedefinitionPolymorphicBlock )newPolymorphicImplementationBlock;
 
 /**
  *  Creates an instance method redefinition for all instances of a class and calls startUsingRedefinition to set it in place.
  *
  *  @param aClass                 The class whose instance method we want to redefine
+ *
  *  @param selector               The instance method we want to redefine
+ *
  *  @param newImplementationBlock The new implementation of selector. Its signature should be:
- *                                method_return_type ^(id self, ...)
+ *                                method_return_type ^(id self, method_args...)
  *
  *  @return An ALDRedefinition object that can control the selector redefinition
  *
- *  @throws NSInvalidArgumentException If any argument is null or if instances of aClass do not respond to selector
+ *  @throws NSInvalidArgumentException If any argument is nil or if instances of aClass do not respond to selector
  *
  *  @see startUsingRedefinition
  *  @see redefineClass:selector:withImplementation:
+ *  @see redefineClass:selector:withPolymorphicImplementation:
+ *  @see redefineClassInstances:selector:withPolymorphicImplementation:
  */
 +( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withImplementation:( id )newImplementationBlock;
+
+/**
+ *  Creates an instance method redefinition for all instances of a class and calls startUsingRedefinition to set it in place.
+ *
+ *  @param aClass                            The class whose instance method we want to redefine
+ *
+ *  @param selector                          The instance method we want to redefine
+
+ *  @param newPolymorphicImplementationBlock A block that must return another block that represents the new implementation of
+ *                                           selector. This way, it is possible to call the original implementation of selector
+ *                                           inside the redefined implementation. The new implementation block signature should be:
+ *                                           method_return_type ^(id self, method_args...)
+ *
+ *  @return An ALDRedefinition object that can control the selector redefinition
+ *
+ *  @throws NSInvalidArgumentException If any argument is nil, if instances of aClass do not respond to selector or if newPolymorphicImplementationBlock
+ *                                     returns nil
+ *
+ *  @see startUsingRedefinition
+ *  @see redefineClass:selector:withImplementation:
+ *  @see redefineClass:selector:withPolymorphicImplementation:
+ *  @see redefineClassInstances:selector:withImplementation:
+ */
++( instancetype )redefineClassInstances:( Class )aClass selector:( SEL )selector withPolymorphicImplementation:( ALDRedefinitionPolymorphicBlock )newPolymorphicImplementationBlock;
 
 /**
  *  Sets the redefinition represented by this object in place. That is, replaces the original implementation of the selector by the
