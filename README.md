@@ -25,7 +25,7 @@ For more info about each version, see [CHANGELOG](https://github.com/danielalves
 Examples
 --------
 
-**ATTENTION:** Apple documentation says new implementations must have the signature `id^(id object, SEL selector, method_args...)`, what is **WRONG**. You should follow the signature specified in Redefine docs: `id^(id object, method_args...)`
+**Attention:** Apple documentation says new implementations must have the signature `id^(id object, SEL selector, method_args...)`, what is **wrong**. You should follow the signature specified in Redefine docs: `id^(id object, method_args...)`
 
 **1) Redefining a class method**
 
