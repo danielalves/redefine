@@ -9,7 +9,7 @@ redefine
 
 The obvious use for it is unit tests. You don't have to prepare your code specifically for tests using factories, interfaces and etc, since it's possible to redefine any class or instance method. But, of course, you can do a lot of other crazy stuffs if you want to =D
 
-Other features are:
+Main features are:
 
 - Swizzle class and instance methods
 - Create more than one redefinition for the same class/instance method
