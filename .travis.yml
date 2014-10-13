@@ -1,6 +1,3 @@
 language: objective-c
-before_script:
-    - brew update
-    - brew install xctool && brew cleanup xctool
 script:
-    - xctool -project Redefine.xcodeproj -sdk iphonesimulator -scheme Redefine test
+    - xcodebuild -project Redefine.xcodeproj -sdk iphonesimulator -scheme Redefine test
