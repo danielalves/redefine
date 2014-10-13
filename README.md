@@ -20,7 +20,7 @@ Other features are:
 **What is new in version 1.1.0**
 
 Added the possibility to call original implementations from redefined implementations!
-For more info about each version, see [CHANGELOG](https://github.com/danielalves/redefine/blob/master/CHANGELOG.md)
+For more info about each version, see [CHANGELOG](https://github.com/danielalves/redefine/blob/master/CHANGELOG.md).
 
 Examples
 --------
@@ -198,6 +198,8 @@ assert( secondRedefinition.usingRedefinition == NO );
 ```
 
 **6) Calling original selector implementations from redefined implementations**
+
+This is possible since version 1.1.0:
 
 ```objc
 NSArray *testArray = @[ @0, @1, @2 ];
